@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Функция для отображения прогресс-бара.
+# Функция прогресс бара.
 show_progress() {
     local duration="$1"
     local step="$2"
@@ -24,7 +24,7 @@ fi
 # Включаем обработку ошибок.
 set -e
 
-# Логирование.
+# Логи.
 log_file="/var/log/certbot-script.log"
 exec > >(tee -a "$log_file") 2>&1
 echo "[START] SCRIPT STARTED: $(date)"
@@ -34,11 +34,11 @@ apt-get update
 
 # Проверяем наличие установленных пакетов.
 if ! dpkg -l | grep -q certbot; then
-    apt-get install certbot
+    apt-get install certbot -y
 fi
 
 if ! dpkg -l | grep -q python3-certbot-nginx; then
-    apt-get install python3-certbot-nginx
+    apt-get install python3-certbot-nginx -y
 fi
 
 # Запуск самого Certbot.
