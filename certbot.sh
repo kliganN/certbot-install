@@ -50,26 +50,44 @@ certbot run --nginx
 unit_file="/etc/systemd/system/certbot-renewal.service"
 if [ ! -f "$unit_file" ]; then
     echo "Creating systemd unit file..."
-    echo "[Unit]" > "$unit_file"
-    echo "Description=Automatically update CA with certbot renewal." >> "$unit_file"
-    echo "" >> "$unit_file"
-    echo "[Service]" >> "$unit_file"
-    echo "ExecStart=/usr/bin/certbot renew --force-renewal --post-hook 'systemctl reload nginx.service'" >> "$unit_file"
+    cat > "$unit_file" << EOF
+[Unit]
+Description=Automatically update CA with certbot renewal.
+
+[Service]
+ExecStart=/usr/bin/certbot renew --force-renewal --post-hook 'systemctl reload nginx.service'
+EOF
+
+    if [ -f "$unit_file" ]; then
+        echo "Systemd unit file was created successfully."
+    else
+        echo "Failed to create systemd unit file."
+        exit 1
+    fi
 fi
 
 # Создание systemd юнита таймера.
 timer_file="/etc/systemd/system/certbot-renewal.timer"
 if [ ! -f "$timer_file" ]; then
     echo "Creating systemd timer file..."
-    echo "[Unit]" > "$timer_file"
-    echo "Description=Timer for certbot" >> "$timer_file"
-    echo "" >> "$timer_file"
-    echo "[Timer]" >> "$timer_file"
-    echo "OnBootSec=300" >> "$timer_file"
-    echo "OnUnitActiveSec=1w" >> "$timer_file"
-    echo "" >> "$timer_file"
-    echo "[Install]" >> "$timer_file"
-    echo "WantedBy=multi-user.target" >> "$timer_file"
+    cat > "$timer_file" << EOF
+[Unit]
+Description=Timer for certbot
+
+[Timer]
+OnBootSec=300
+OnUnitActiveSec=1w
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    if [ -f "$timer_file" ]; then
+        echo "Systemd timer file was created successfully."
+    else
+        echo "Failed to create systemd timer file."
+        exit 1
+    fi
 fi
 
 # Активация таймера в автозагрузку.
